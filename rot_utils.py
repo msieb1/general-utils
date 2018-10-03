@@ -2,7 +2,7 @@
 import torch
 import numpy as np
 import math
-from ipdb import set_trace
+from pdb import set_trace
 
 
     # Checks if a matrix is a valid rotation matrix.
@@ -67,7 +67,7 @@ def axisAngletoRotationMatrix(a):
 # Calculates Rotation Matrix given euler angles.
 def eulerAnglesToRotationMatrix(theta, tensor=False) :
     """
-    Theta is given as euler angles Z-Y-X, corresponding to yaw, pitch, roll
+    Theta is given as euler angles X-Y-Z, corresponding to roll, pitch, yaw
     """ 
     if not tensor:
         R_x = np.array([[1,         0,                  0                   ],
