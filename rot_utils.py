@@ -13,7 +13,13 @@ def isRotationMatrix(R) :
     n = np.linalg.norm(I - shouldBeIdentity)
     return n < 1e-6
  
-
+def geodesic_dist_quat(q1, q2, tensor=True):
+    if tensor:
+        dist = 2*torch.acos(torch.abs(torch.sum(q1*q2, dim=1)))
+    else:
+        dist = 2*np.arccos(np.abs(np.sum(q1*q2)))
+    return dist
+        
 
 def norm_sincos(sin, cos):
     stacked_ = torch.cat((sin[None], cos[None]))
