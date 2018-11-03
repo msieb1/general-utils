@@ -6,10 +6,6 @@ from rot_utils import rotationMatrixToEulerAngles, axisAngletoRotationMatrix, \
               sincos2rotm
 
 
-from config_server import Config_Isaac_Server as Config
-conf = Config()
-
-USE_CUDA = conf.USE_CUDA
 
 def geodesic_dist(R1, R2):
     mult = torch.matmul(torch.transpose(R1, dim0=1, dim1=2), R2)
@@ -23,14 +19,14 @@ def geodesic_dist_quat(q1, q2):
     return dist
 
 
-def loss_quat(tcn, minibatch, lambd=0.01):
+def loss_quat(tcn, minibatch, lambd=0.01, use_cuda=True):
   """ 
   Calculates reparamerized euler angles as network output and puts
   loss on rotation matrix calculated from those, after normalizing the sin/cos values
   Assumes 6 dimensional rotation parameters -> sin/cos per angle,
   over all 6 values
   """
-  if USE_CUDA:
+  if use_cuda:
      anchor_frames = minibatch[0].cuda()
      anchor_quats = minibatch[1].cuda() # load as 3x3 rotation matrix
   features_second_view_gt, a_pred, features_first_view_gt = tcn(anchor_frames)
@@ -43,14 +39,14 @@ def loss_quat(tcn, minibatch, lambd=0.01):
   return loss
 
 
-def loss_rotation(tcn, minibatch, lambd=0.01):
+def loss_rotation(tcn, minibatch, lambd=0.01, use_cuda=True):
   """ 
   Calculates reparametrized euler angles as network output and puts
   loss on rotation matrix calculated from those, after normalizing the sin/cos values
   Assumes 6 dimensional rotation parameters -> sin/cos per angle,
   over all 6 values
   """
-  if USE_CUDA:
+  if use_cuda:
      anchor_frames = minibatch[0].cuda()
      anchor_rots = minibatch[1].cuda() # load as 3x3 rotation matrix
   
@@ -66,13 +62,13 @@ def loss_rotation(tcn, minibatch, lambd=0.01):
   return loss
 
 
-def loss_axisangle(tcn, minibatch, lambd=0.1):
+def loss_axisangle(tcn, minibatch, lambd=0.1, use_cuda=True):
   """ 
   Calculates axis/angle representation as network output and transforms to
   rotation matrix to put geodesic distance loss on it
   Assumes 4 output parameters: 3 for axis, 1 for angle
   """
-  if USE_CUDA:
+  if use_cuda:
      anchor_frames = minibatch[0].cuda()
      #anchor_euler_reparam = minibatch[1].cuda() # load as 3x3 rotation matrix
      anchor_rots = minibatch[1].cuda() # load as 3x3 rotation matrix
@@ -87,14 +83,14 @@ def loss_axisangle(tcn, minibatch, lambd=0.1):
           lambd * torch.nn.SmoothL1Loss()(features_first_view_gt, features_second_view_gt.detach())
   return loss
 
-def loss_euler_reparametrize(tcn, minibatch, lambd=0.1):
+def loss_euler_reparametrize(tcn, minibatch, lambd=0.1, use_cuda=True):
   """ 
   Calculates reparamerized euler angles as network output and puts
   loss directly on those with Huber distance
   Assumes 6 dimensional rotation parameters -> sin/cos per angle,
   over all 6 values
   """
-  if USE_CUDA:
+  if use_cuda:
      anchor_frames = minibatch[0].cuda()
      #anchor_euler_reparam = minibatch[1].cuda() # load as 3x3 rotation matrix
      anchor_rots = minibatch[1].cuda() # load as 3x3 rotation matrix
